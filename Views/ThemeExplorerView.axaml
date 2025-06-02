@@ -1,0 +1,237 @@
+<UserControl
+  x:Class="AudioVisualizer.Views.ThemeExplorerView"
+  xmlns="https://github.com/avaloniaui"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:b="using:AudioVisualizer.Behaviors"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:i="https://github.com/projektanker/icons.avalonia"
+  xmlns:ia="using:Avalonia.Xaml.Interactions.Core"
+  xmlns:iac="using:Avalonia.Xaml.Interactions.Custom"
+  xmlns:idd="using:Avalonia.Xaml.Interactions.DragAndDrop"
+  xmlns:in="using:Avalonia.Xaml.Interactivity"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:vm="using:AudioVisualizer.ViewModels"
+  xmlns:vmo="using:AudioVisualizer.ViewModels.Observables"
+  x:DataType="vm:ThemeExplorerViewModel"
+  mc:Ignorable="d"
+  >
+  <!--
+    DragNDrop built upon  https://github.com/AvaloniaUI/Avalonia.Xaml.Behaviors/tree/master/samples/DragAndDropSample and
+    https://github.com/AvaloniaUI/Avalonia/discussions/10877
+  -->
+  <UserControl.Styles>
+    <Style Selector="TreeView.NodesDragAndDrop">
+      <Style.Resources>
+        <b:NodesTreeViewDropHandler x:Key="NodesTreeViewDropHandler" />
+      </Style.Resources>
+      <Setter Property="(in:Interaction.Behaviors)">
+        <in:BehaviorCollectionTemplate>
+          <in:BehaviorCollection>
+            <idd:ContextDropBehavior Handler="{StaticResource NodesTreeViewDropHandler}" />
+          </in:BehaviorCollection>
+        </in:BehaviorCollectionTemplate>
+      </Setter>
+    </Style>
+    <Style Selector="TreeView.NodesDragAndDrop TreeViewItem">
+      <Setter Property="IsExpanded" Value="True" />
+      <Setter Property="DragDrop.AllowDrop" Value="True" />
+      <Setter Property="(in:Interaction.Behaviors)">
+        <in:BehaviorCollectionTemplate>
+          <in:BehaviorCollection>
+            <idd:ContextDragBehavior />
+            <iac:RoutedEventTriggerBehavior RoutedEvent="{x:Static DragDrop.DragEnterEvent}" RoutingStrategies="Bubble">
+              <iac:AddClassAction ClassName="dragging" RemoveIfExists="True" />
+            </iac:RoutedEventTriggerBehavior>
+            <iac:RoutedEventTriggerBehavior RoutedEvent="{x:Static DragDrop.DragLeaveEvent}" RoutingStrategies="Bubble">
+              <iac:RemoveClassAction ClassName="dragging" />
+            </iac:RoutedEventTriggerBehavior>
+            <iac:RoutedEventTriggerBehavior RoutedEvent="{x:Static DragDrop.DropEvent}" RoutingStrategies="Bubble">
+              <iac:RemoveClassAction ClassName="dragging" />
+            </iac:RoutedEventTriggerBehavior>
+          </in:BehaviorCollection>
+        </in:BehaviorCollectionTemplate>
+      </Setter>
+    </Style>
+    <Style Selector="TreeView.NodesDragAndDrop TreeViewItem /template/ ContentPresenter#PART_HeaderPresenter">
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="Margin" Value="0" />
+    </Style>
+    <Style x:DataType="vmo:ThemeNodeObservableModel" Selector="TreeView.NodesDragAndDrop.dragging-up TreeViewItem.dragging">
+      <Setter Property="AdornerLayer.Adorner">
+        <Template>
+          <Border
+            BorderBrush="White"
+            BorderThickness="0,2,0,0"
+            IsVisible="{Binding !IsCategory}"
+            />
+        </Template>
+      </Setter>
+    </Style>
+    <Style x:DataType="vmo:ThemeNodeObservableModel" Selector="TreeView.NodesDragAndDrop.dragging-down TreeViewItem.dragging">
+      <Setter Property="AdornerLayer.Adorner">
+        <Template>
+          <Border
+            BorderBrush="White"
+            BorderThickness="0,0,0,2"
+            IsVisible="{Binding !IsCategory}"
+            />
+        </Template>
+      </Setter>
+    </Style>
+  </UserControl.Styles>
+
+  <DockPanel>
+    <Border DockPanel.Dock="Top">
+      <Grid ColumnDefinitions="Auto,*">
+        <TextBlock
+          Grid.Column="0"
+          Margin="5,0,5,0"
+          VerticalAlignment="Center"
+          FontWeight="Bold"
+          Text="Theme Explorer"
+          />
+        <StackPanel
+          Grid.Column="1"
+          HorizontalAlignment="Right"
+          Orientation="Horizontal"
+          >
+          <Button
+            HorizontalAlignment="Right"
+            VerticalAlignment="Center"
+            i:Attached.Icon="mdi-plus"
+            Command="{Binding AddThemeCommand}"
+            CornerRadius="0,0,0,4"
+            />
+          <Button
+            HorizontalAlignment="Right"
+            VerticalAlignment="Center"
+            i:Attached.Icon="mdi-folder-plus"
+            Command="{Binding AddCategoryCommand}"
+            CornerRadius="0"
+            />
+        </StackPanel>
+      </Grid>
+    </Border>
+    <TreeView
+      x:Name="ThemeTreeView"
+      Classes="NodesDragAndDrop"
+      ItemsSource="{Binding Nodes}"
+      SelectedItem="{Binding Parent.SelectedTheme}"
+      >
+      <TreeView.ItemContainerTheme>
+        <ControlTheme BasedOn="{StaticResource {x:Type TreeViewItem}}" TargetType="TreeViewItem">
+          <Setter Property="ContextMenu">
+            <Setter.Value>
+              <ContextMenu>
+                <!--  theme only  -->
+                <MenuItem
+                  Command="{Binding $parent[UserControl].((vm:ThemeExplorerViewModel)DataContext).UseThemeCommand}"
+                  CommandParameter="{Binding $parent[TreeViewItem].((vmo:ThemeNodeObservableModel)DataContext).Id}"
+                  Header="Use"
+                  IsVisible="{Binding !$parent[TreeViewItem].((vmo:ThemeNodeObservableModel)DataContext).IsCategory}"
+                  >
+                  <MenuItem.Icon>
+                    <i:Icon FontSize="18" Value="mdi-check" />
+                  </MenuItem.Icon>
+                </MenuItem>
+                <!--  category only  -->
+                <MenuItem
+                  Command="{Binding $parent[UserControl].((vm:ThemeExplorerViewModel)DataContext).AddThemeToNodeCommand}"
+                  Header="New Theme"
+                  IsVisible="{Binding $parent[TreeViewItem].((vmo:ThemeNodeObservableModel)DataContext).IsCategory}"
+                  >
+                  <MenuItem.Icon>
+                    <i:Icon FontSize="18" Value="mdi-plus-circle-outline" />
+                  </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem
+                  Command="{Binding $parent[UserControl].((vm:ThemeExplorerViewModel)DataContext).AddCategoryToNodeCommand}"
+                  Header="New Category"
+                  IsVisible="{Binding $parent[TreeViewItem].((vmo:ThemeNodeObservableModel)DataContext).IsCategory}"
+                  >
+                  <MenuItem.Icon>
+                    <i:Icon FontSize="18" Value="mdi-folder-plus" />
+                  </MenuItem.Icon>
+                </MenuItem>
+                <!--  theme/category only  -->
+                <MenuItem
+                  Command="{Binding $parent[UserControl].((vm:ThemeExplorerViewModel)DataContext).RenameThemeCommand}"
+                  CommandParameter="{Binding $parent[TreeViewItem].((vmo:ThemeNodeObservableModel)DataContext).Id}"
+                  Header="Rename"
+                  IsEnabled="{Binding !$parent[TreeViewItem].((vmo:ThemeNodeObservableModel)DataContext).Readonly}"
+                  >
+                  <MenuItem.Icon>
+                    <i:Icon FontSize="18" Value="mdi-pencil" />
+                  </MenuItem.Icon>
+                </MenuItem>
+                <!--  theme only  -->
+                <MenuItem
+                  Command="{Binding $parent[UserControl].((vm:ThemeExplorerViewModel)DataContext).SaveAsThemeCommand}"
+                  CommandParameter="{Binding $parent[TreeViewItem].((vmo:ThemeNodeObservableModel)DataContext).Id}"
+                  Header="Save as"
+                  IsVisible="{Binding !$parent[TreeViewItem].((vmo:ThemeNodeObservableModel)DataContext).IsCategory}"
+                  >
+                  <MenuItem.Icon>
+                    <i:Icon FontSize="18" Value="mdi-content-save-plus" />
+                  </MenuItem.Icon>
+                </MenuItem>
+                <!--  theme/category only  -->
+                <MenuItem
+                  Command="{Binding $parent[UserControl].((vm:ThemeExplorerViewModel)DataContext).DeleteThemeCommand}"
+                  CommandParameter="{Binding $parent[TreeViewItem].((vmo:ThemeNodeObservableModel)DataContext).Id}"
+                  Header="Delete"
+                  IsEnabled="{Binding !$parent[TreeViewItem].((vmo:ThemeNodeObservableModel)DataContext).Readonly}"
+                  >
+                  <MenuItem.Icon>
+                    <i:Icon FontSize="18" Value="mdi-delete-forever" />
+                  </MenuItem.Icon>
+                </MenuItem>
+              </ContextMenu>
+            </Setter.Value>
+          </Setter>
+          <Setter Property="Background" Value="Transparent" />
+        </ControlTheme>
+      </TreeView.ItemContainerTheme>
+      <TreeView.ItemTemplate>
+        <TreeDataTemplate DataType="vmo:ThemeNodeObservableModel" ItemsSource="{Binding Nodes}">
+          <Border Padding="0,4,8,4" DoubleTapped="ThemeNode_DoubleTapped">
+            <StackPanel Orientation="Horizontal" Spacing="5">
+              <i:Icon
+                VerticalAlignment="Center"
+                FontSize="18"
+                IsVisible="{Binding IsCategory}"
+                Value="mdi-folder-outline"
+                />
+              <i:Icon
+                VerticalAlignment="Center"
+                FontSize="18"
+                Value="mdi-circle"
+                >
+                <i:Icon.IsVisible>
+                  <MultiBinding Converter="{StaticResource DictContainsConverter}">
+                    <Binding Path="$parent[UserControl].((vm:ThemeExplorerViewModel)DataContext).Parent.DirtyThemes" />
+                    <Binding Path="Id" />
+                  </MultiBinding>
+                </i:Icon.IsVisible>
+              </i:Icon>
+              <TextBlock Text="{Binding Name}" />
+              <i:Icon
+                HorizontalAlignment="Right"
+                VerticalAlignment="Center"
+                FontSize="18"
+                IsVisible="{Binding Readonly}"
+                Value="mdi-lock-outline"
+                />
+            </StackPanel>
+          </Border>
+        </TreeDataTemplate>
+      </TreeView.ItemTemplate>
+      <TreeView.ContextMenu>
+        <ContextMenu>
+          <MenuItem Command="{Binding AddThemeCommand}" Header="New Theme" />
+          <MenuItem Command="{Binding AddCategoryCommand}" Header="New Category" />
+        </ContextMenu>
+      </TreeView.ContextMenu>
+    </TreeView>
+  </DockPanel>
+</UserControl>

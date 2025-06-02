@@ -1,0 +1,89 @@
+<Application
+  x:Class="AudioVisualizer.App"
+  xmlns="https://github.com/avaloniaui"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:converters="using:AudioVisualizer.Converters"
+  xmlns:i="https://github.com/projektanker/icons.avalonia"
+  xmlns:labs="clr-namespace:Avalonia.Labs.Controls;assembly=Avalonia.Labs.Controls"
+  xmlns:local="using:AudioVisualizer"
+  xmlns:semi="https://irihi.tech/semi"
+  xmlns:u="https://irihi.tech/ursa"
+  xmlns:u-semi="https://irihi.tech/ursa/themes/semi"
+  Name="AudioVisualizer"
+  RequestedThemeVariant="Default"
+  >
+  <!--  "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options.  -->
+
+  <Application.DataTemplates>
+    <local:ViewLocator />
+  </Application.DataTemplates>
+
+  <Application.Styles>
+    <semi:SemiTheme Locale="en-US" />
+    <u-semi:SemiTheme Locale="en-US" />
+    <semi:ColorPickerSemiTheme />
+    <!-- <FluentTheme /> -->
+    <labs:ControlThemes />
+  </Application.Styles>
+
+  <Application.Resources>
+    <converters:MultiBindingConverter x:Key="MultiBindingConverter" />
+    <converters:DictContainsConverter x:Key="DictContainsConverter" />
+    <converters:SecondsToStringConverter x:Key="SecondsToStringConverter" />
+    <converters:GridSizeConverter x:Key="GridSizeConverter" />
+
+    <ControlTheme x:Key="ImportButtonPathPicker" TargetType="u:PathPicker">
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Button
+            Name="{x:Static u:PathPicker.PART_Button}"
+            HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
+            VerticalAlignment="{TemplateBinding VerticalAlignment}"
+            CornerRadius="{TemplateBinding CornerRadius}"
+            >
+            <StackPanel Orientation="Horizontal">
+              <i:Icon
+                Margin="0,0,5,0"
+                VerticalAlignment="Center"
+                FontSize="18"
+                Value="mdi-file-upload-outline"
+                />
+              <TextBlock VerticalAlignment="Center" Text="{TemplateBinding Title}" />
+            </StackPanel>
+          </Button>
+        </ControlTemplate>
+      </Setter>
+      <Style Selector="^ /template/ Button#PART_Button:pressed">
+        <Setter Property="RenderTransform" Value="{x:Null}" />
+      </Style>
+    </ControlTheme>
+    <ControlTheme x:Key="ExportButtonPathPicker" TargetType="u:PathPicker">
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Button
+            Name="{x:Static u:PathPicker.PART_Button}"
+            HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
+            VerticalAlignment="{TemplateBinding VerticalAlignment}"
+            Classes="Primary"
+            CornerRadius="{TemplateBinding CornerRadius}"
+            IsDefault="True"
+            Theme="{DynamicResource SolidButton}"
+            >
+            <StackPanel Orientation="Horizontal">
+              <i:Icon
+                Margin="0,0,5,0"
+                VerticalAlignment="Center"
+                FontSize="18"
+                Value="mdi-file-export-outline"
+                />
+              <TextBlock VerticalAlignment="Center" Text="{TemplateBinding Title}" />
+            </StackPanel>
+          </Button>
+        </ControlTemplate>
+      </Setter>
+      <Style Selector="^ /template/ Button#PART_Button:pressed">
+        <Setter Property="RenderTransform" Value="{x:Null}" />
+      </Style>
+    </ControlTheme>
+  </Application.Resources>
+</Application>

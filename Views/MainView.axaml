@@ -1,0 +1,97 @@
+<UserControl
+  x:Class="AudioVisualizer.Views.MainView"
+  xmlns="https://github.com/avaloniaui"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:i="https://github.com/projektanker/icons.avalonia"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:u="https://irihi.tech/ursa"
+  xmlns:views="clr-namespace:AudioVisualizer.Views"
+  xmlns:vm="using:AudioVisualizer.ViewModels"
+  d:DesignHeight="720"
+  d:DesignWidth="1280"
+  x:DataType="vm:MainViewViewModel"
+  mc:Ignorable="d"
+  >
+  <DockPanel>
+    <!--  Top toolbar  -->
+    <Border
+      Margin="0"
+      Padding="0"
+      CornerRadius="0"
+      DockPanel.Dock="Top"
+      Theme="{StaticResource CardBorder}"
+      >
+      <Grid Height="30" ColumnDefinitions="*, *, *">
+        <StackPanel
+          Grid.Column="0"
+          HorizontalAlignment="Left"
+          Orientation="Horizontal"
+          >
+          <u:PathPicker
+            x:Name="AudioImport"
+            Title="Import audio"
+            Height="32"
+            AllowMultiple="False"
+            Command="{Binding ImportCommand}"
+            CornerRadius="0"
+            FileFilter="[Audio (*.mp3;*.wav;*.flac),*.mp3,*.wav,*.flac]"
+            IsOmitCommandOnCancel="True"
+            SelectedPathsText="{Binding ImportPath}"
+            Theme="{DynamicResource ImportButtonPathPicker}"
+            UsePickerType="OpenFile"
+            />
+          <Button Command="{Binding ExportCommand}" CornerRadius="0">
+            <StackPanel Orientation="Horizontal">
+              <i:Icon
+                Margin="0,0,5,0"
+                VerticalAlignment="Center"
+                FontSize="18"
+                Value="mdi-file-export-outline"
+                />
+              <TextBlock VerticalAlignment="Center" Text="Export" />
+            </StackPanel>
+          </Button>
+          <Button Command="{Binding NavigateSettingsCommand}" CornerRadius="0">
+            <StackPanel Orientation="Horizontal">
+              <i:Icon
+                Margin="0,0,5,0"
+                VerticalAlignment="Center"
+                FontSize="18"
+                Value="mdi-cog"
+                />
+              <TextBlock VerticalAlignment="Center" Text="Settings" />
+            </StackPanel>
+          </Button>
+        </StackPanel>
+        <StackPanel
+          Grid.Column="1"
+          HorizontalAlignment="Center"
+          Orientation="Horizontal"
+          />
+      </Grid>
+    </Border>
+    <Grid>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="{Binding Settings.MediaPlayerColWidth, Mode=TwoWay, Converter={StaticResource GridSizeConverter}}" MinWidth="100" />
+        <ColumnDefinition Width="4" />
+        <ColumnDefinition Width="*" MinWidth="100" />
+      </Grid.ColumnDefinitions>
+      <!--  Media Player  -->
+      <views:MediaPlayerView Grid.Column="0" DataContext="{Binding MediaPlayer}" />
+      <GridSplitter Grid.Column="1" ResizeDirection="Columns" />
+      <!--  Right panel  -->
+      <Grid Grid.Column="2">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="{Binding Settings.ThemeExplorerRowHeight, Mode=TwoWay, Converter={StaticResource GridSizeConverter}}" MinHeight="30" />
+          <RowDefinition Height="4" />
+          <RowDefinition Height="*" MinHeight="30" />
+        </Grid.RowDefinitions>
+        <views:ThemeExplorerView Grid.Row="0" DataContext="{Binding ThemeExplorer}" />
+        <GridSplitter Grid.Row="1" ResizeDirection="Rows" />
+        <views:ThemeInspectorView Grid.Row="2" DataContext="{Binding ThemeInspector}" />
+      </Grid>
+    </Grid>
+  </DockPanel>
+
+</UserControl>
