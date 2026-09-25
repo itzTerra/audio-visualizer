@@ -10,6 +10,17 @@
 - [Icons.Avalonia](https://github.com/Projektanker/Icons.Avalonia)
 - [SoundFlow](https://github.com/LSXPrime/SoundFlow)
 
+## Future Goals
+
+- **Main goal: a theme that uses AI audio embedding vectors (e.g. from [VGGish](https://github.com/tensorflow/models/blob/master/research/audioset/vggish/README.md)) as the source of information for rendering video**
+- Project mode — the app can open a directory that then acts as a project
+  - outputs are saved into the project folder, and the project folder is the default directory for FileInput inputs
+  - ability to save a Theme locally within the project instead of system-wide
+- Creating custom themes with custom parameters and associated rendering methods
+- Ability to export only a selected part of the timeline
+- Ability to map a different theme onto different parts of the audio, or to have multiple graphical outputs for the same part (layers + opacity could be nice)
+- Loading and working with multiple audio tracks
+
 ## Known Issues
 - Video export unsupported
 - Theme module forms are not validated against nonsense inputs
